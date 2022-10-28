@@ -115,36 +115,71 @@ def show(array):
     plt.show()
 
 
-if Const.get_number_blocks():
+def first_neural_network():
+
+    if Const.get_number_blocks():
+        pass
+    else:
+        print("Error: original image is not divided into blocks size " + str(Const.block_height) + "x" + str(
+            Const.block_width) + ". Try blocks size: 1x1, 1x2, 2x1, 2x2, 4x4, 8x8, 8x4, 8x2 and other")
+        exit()
+
+    Const.W1, Const.W2 = Calculations.matrix_w(Const.first_layer, Const.second_layer)
+    bar = IncrementalBar('Countdown', max=Const.number_blocks)
+
+    for y in range(Const.number_blocks):
+        bar.next()
+
+        x = vector_neurons()
+
+        backward(x, y)
+
+        out_image(Const.h2)
+        middle_image(Const.h1)
+
+    bar.finish()
+
+    h3 = original_image()
+    show(h3)
+    show(Const.middle_image)
+    show(Const.out_image)
+
+    number = Const.second_layer + 2
+    number = number * (Const.first_layer + Const.number_blocks)
+    number = (Const.first_layer * Const.number_blocks) / number
+    print('Z = ', number)
+    print("Iterations: ", Const.epoch / Const.number_blocks)
+
+
+def second_neural_network():
     pass
-else:
-    print("Error: original image is not divided into blocks size " + str(Const.block_height) + "x" + str(
-        Const.block_width) + ". Try blocks size: 1x1, 1x2, 2x1, 2x2, 4x4, 8x8, 8x4, 8x2 and other")
-    exit()
+
+
+def third_neural_network():
+    pass
+
+
+def main():
+    value = True
+
+    while value:
+        print("№1 Обычная нейронка")
+        print("№2 На обученных весах")
+        print("№3 Из сжатой в разжатую")
+        user_input = int(input("Выберите развитие 1-3: "))
+
+        if user_input == 1:
+            value = False
+            first_neural_network()
+        elif user_input == 2:
+            value = False
+            second_neural_network()
+        elif user_input == 3:
+            value = False
+            third_neural_network()
+        else:
+            pass
+
 
 array_image = get_image_rgb()
-Const.W1, Const.W2 = Calculations.matrix_w(Const.first_layer, Const.second_layer)
-bar = IncrementalBar('Countdown', max=Const.number_blocks)
-
-for y in range(Const.number_blocks):
-    bar.next()
-
-    x = vector_neurons()
-
-    backward(x, y)
-
-    out_image(Const.h2)
-    middle_image(Const.h1)
-
-bar.finish()
-
-h3 = original_image()
-show(h3)
-show(Const.middle_image)
-show(Const.out_image)
-
-number = Const.second_layer + 2
-number = number * (Const.first_layer + Const.number_blocks)
-number = (Const.first_layer * Const.number_blocks) / number
-print('Z = ', number)
-print("Iterations: ", Const.epoch / Const.number_blocks)
+main()
