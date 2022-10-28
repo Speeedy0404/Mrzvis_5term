@@ -1,7 +1,7 @@
-image = 'picture/not_anime.png'
+name_image = 'anime'
+image = 'picture/' + name_image + '.png'
 
-# ERROR = 0.1e-1
-ERROR = 1
+ERROR = 2800
 block_col = 1
 block_row = 1
 
@@ -15,9 +15,9 @@ second_layer = compressed_block_width * compressed_block_height * 3
 block_max_col = int(256 / block_width)
 block_max_row = int(256 / block_height)
 
-number_blocks = int(256*256 / (block_height * block_width))
+number_blocks = int(256 * 256 / (block_height * block_width))
 
-alpha = 0.0007
+alpha = 0.005
 
 W1 = None
 W2 = None
