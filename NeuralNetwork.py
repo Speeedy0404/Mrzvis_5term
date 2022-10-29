@@ -130,6 +130,7 @@ def show(array):
 
 
 def first_neural_network():
+
     if Const.get_number_blocks():
         pass
     else:
@@ -171,7 +172,7 @@ def first_neural_network():
 
     WorkWithFile.save_weight(Const.W1, "W1")
     WorkWithFile.save_weight(Const.W2, "W2")
-    WorkWithFile.save_middle_image()
+
 
     h3 = original_image()
     show(h3)
@@ -204,6 +205,8 @@ def second_neural_network():
 
         out_image(Const.h2)
         middle_image(Const.h1)
+
+    WorkWithFile.save_middle_image()
 
     h3 = original_image()
     show(h3)
