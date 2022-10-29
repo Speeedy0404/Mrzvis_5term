@@ -1,13 +1,13 @@
-name_image = 'anime'
+name_image = 'not_anime'
 image = 'picture/' + name_image + '.png'
 
-ERROR = 2800
+ERROR = 3000
 block_col = 1
 block_row = 1
 
 block_height = 4
 block_width = 4
-compressed_block_height = 2
+compressed_block_height = 1
 compressed_block_width = 2
 first_layer = block_height * block_width * 3
 second_layer = compressed_block_width * compressed_block_height * 3

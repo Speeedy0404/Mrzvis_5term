@@ -34,6 +34,27 @@ def vector_neurons():
     return vector
 
 
+def vector_neurons_for_saved_image():
+    if Const.block_row == Const.block_max_row + 1 and Const.block_col != Const.block_max_col:
+        Const.block_col += 1
+        Const.block_row = 1
+    elif Const.block_row == Const.block_max_row + 1 and Const.block_col == Const.block_col:
+        Const.block_col = 1
+        Const.block_row = 1
+
+    vector = []
+    size_1_1 = (Const.block_col - 1) * Const.compressed_block_width
+    size_1_2 = Const.block_col * Const.compressed_block_width
+    size_2_1 = (Const.block_row - 1) * Const.compressed_block_height
+    size_2_2 = Const.block_row * Const.compressed_block_height
+    for q in range(size_2_1, size_2_2):
+        for y in range(size_1_1, size_1_2):
+            for k in range(3):
+                vector.append(Const.middle_image[q][y][k])
+
+    return vector
+
+
 def forward_propagation(vector, w):
     f_p = Calculations.multiplying_matrix_by_vector(vector, w)
     return f_p
@@ -42,7 +63,7 @@ def forward_propagation(vector, w):
 def backward(x):
     Const.h1 = forward_propagation(x, Const.W1)
     Const.h2 = forward_propagation(Const.h1, Const.W2)
-    # if y < 30:
+
     delta_h2 = Calculations.subtracting_vectors(Const.h2, x)
     delta_h1 = Calculations.multiplying_matrix_transpose_by_vector(delta_h2, Const.W2)
 
@@ -57,12 +78,6 @@ def backward(x):
 
     Const.W2 = Calculations.normalize(Const.W2)
     Const.W1 = Calculations.normalize(Const.W1)
-
-    error = Calculations.error_calculation(delta_h2, delta_h2)
-
-    # print('Epoch ', epoch, '   ', 'errors ', error, '   ', 'block ', y, "/", Const.number_blocks)
-    # else:
-    #     error = 0
 
 
 def original_image():
@@ -156,6 +171,7 @@ def first_neural_network():
 
     WorkWithFile.save_weight(Const.W1, "W1")
     WorkWithFile.save_weight(Const.W2, "W2")
+    WorkWithFile.save_middle_image()
 
     h3 = original_image()
     show(h3)
@@ -202,7 +218,33 @@ def second_neural_network():
 
 
 def third_neural_network():
-    pass
+    if Const.get_number_blocks():
+        pass
+    else:
+        print("Error: original image is not divided into blocks size " + str(Const.block_height) + "x" + str(
+            Const.block_width) + ". Try blocks size: 1x1, 1x2, 2x1, 2x2, 4x4, 8x8, 8x4, 8x2 and other")
+        exit()
+
+    Const.W2 = WorkWithFile.read_weight("W2")
+    WorkWithFile.read_middle_image()
+
+    for y in range(Const.number_blocks):
+        x = vector_neurons_for_saved_image()
+
+        Const.h2 = forward_propagation(x, Const.W2)
+
+        out_image(Const.h2)
+        Const.block_row += 1
+
+    h3 = original_image()
+    show(h3)
+    show(Const.middle_image)
+    show(Const.out_image)
+
+    number = Const.second_layer + 2
+    number = number * (Const.first_layer + Const.number_blocks)
+    number = (Const.first_layer * Const.number_blocks) / number
+    print('Z = ', number)
 
 
 def main():
