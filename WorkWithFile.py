@@ -60,7 +60,7 @@ def read_weight(name):
         size_1 = Const.second_layer
         size_2 = Const.first_layer
 
-    matrix_weight = [[0 for _ in range(size_2)] for _ in range(size_1)]
+    matrix_weight = [[0.1 for _ in range(size_2)] for _ in range(size_1)]
 
     file_name = name + '_size_block' + str(Const.block_height) + 'x' + str(Const.block_width) + 'and' + str(
         Const.compressed_block_height) + 'x' + str(

@@ -1,13 +1,13 @@
 name_image = 'forest'
 image = 'picture/' + name_image + '.png'
 
-ERROR = 0.22
+ERROR = 0.07
 block_height = 8
-block_width = 4
-compressed_block_height = 4
-compressed_block_width = 2
+block_width = 2
+compressed_block_height = 3
+compressed_block_width = 1
 alpha = 0.0007
-iteration = 2000
+iteration = 3000
 
 block_col = 1
 block_row = 1

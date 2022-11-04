@@ -6,93 +6,60 @@ import Const
 
 # check
 def matrix_w(one_layer, two_layer):
-    w1 = [[0 for _ in range(two_layer)] for _ in range(one_layer)]
-    w2 = [[0 for _ in range(len(w1))] for _ in range(len(w1[0]))]
-
-    for row in range(one_layer):
-        for col in range(two_layer):
-            w1[row][col] = random.uniform(-1, 1)
-
-    for col in range(len(w1)):  # col row
-        for row in range(len(w1[0])):
-            w2[row][col] = w1[col][row]
-
+    w1 = [[random.uniform(-1, 1) for _ in range(two_layer)] for _ in range(one_layer)]
+    w2 = [[w1[row][col] for row in range(len(w1))] for col in range(len(w1[0]))]
     return w1, w2
 
 
 # check
 def multiplying_matrix_by_vector(vector, w):
-    size_1 = len(w)
-    size_2 = len(w[0])
+    size = len(w[0])
     neurons = []
-
     repetition = 0
-
-    while repetition != size_2:
-
+    while repetition != size:
         variable = 0
-        for element in range(size_1):
+        for element in range(len(w)):
             variable += w[element][repetition] * vector[element]
-            if element == size_1 - 1:
+            if element == len(w) - 1:
                 neurons.append(variable)
         repetition += 1
-
     return neurons
 
 
 # check
 def subtracting_vectors(vector_one, vector_two):
-    size = len(vector_one)
     vector_new = []
-
-    for element in range(size):
+    for element in range(len(vector_one)):
         vector_new.append(vector_one[element] - vector_two[element])
-
     return vector_new
 
 
 # check
 def multiplying_matrix_by_transpose_matrix(matrix, matrix_transpose):
-    size_1 = len(matrix_transpose)
-    size_2 = len(matrix)
-
-    matrix_new = [[0 for _ in range(size_2)] for _ in range(size_1)]
-
-    for row in range(size_1):
-        for col in range(size_2):
-            matrix_new[row][col] = matrix_transpose[row] * matrix[col]
-
+    matrix_new = [[matrix_transpose[row] * matrix[col] for col in range(len(matrix))] for row in
+                  range(len(matrix_transpose))]
     return matrix_new
 
 
 # check
 def multiplying_matrix_by_alpha(matrix):
-    for row in range(len(matrix)):
-        for col in range(len(matrix[0])):
-            matrix[row][col] = matrix[row][col] * Const.alpha
-
+    matrix = [[matrix[row][col] * Const.alpha for col in range(len(matrix[0]))] for row in
+              range(len(matrix))]
     return matrix
 
 
 # check
 def subtracting_two_matrices(matrix_one, matrix_two):
-    new_matrix = [[0 for _ in range(len(matrix_one[0]))] for _ in range(len(matrix_one))]
-
-    for row in range(len(matrix_one)):
-        for col in range(len(matrix_one[0])):
-            new_matrix[row][col] = matrix_one[row][col] - matrix_two[row][col]
-
+    new_matrix = [[matrix_one[row][col] - matrix_two[row][col] for col in range(len(matrix_one[0]))] for row in
+                  range(len(matrix_one))]
     return new_matrix
 
 
 # check
 def multiplying_matrix_transpose_by_vector(vector, matrix):
     new_matrix = []
-    trans_result = [[0 for _ in range(len(matrix))] for _ in range(len(matrix[0]))]
 
-    for col in range(len(matrix)):
-        for row in range(len(matrix[0])):
-            trans_result[row][col] = matrix[col][row]
+    trans_result = [[matrix[row][col] for row in range(len(matrix))] for col in range(len(matrix[0]))]
 
     for col in range(len(trans_result[0])):
         value = 0
