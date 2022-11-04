@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import matplotlib.image as mpimg
 import numpy as np
 from matplotlib import pyplot as plt
@@ -7,13 +9,7 @@ import Const
 import WorkWithFile
 
 
-def get_image_rgb():
-    image = mpimg.imread(Const.image)
-    image = (2.0 * image / 1.0) - 1.0
-    return image
-
-
-def vector_neurons():
+def check_col_row():
     if Const.block_row == Const.block_max_row + 1 and Const.block_col != Const.block_max_col:
         Const.block_col += 1
         Const.block_row = 1
@@ -21,11 +17,33 @@ def vector_neurons():
         Const.block_col = 1
         Const.block_row = 1
 
+
+def size_image(string):
+    if string == "image":
+        s1 = (Const.block_col - 1) * Const.block_width
+        s2 = Const.block_col * Const.block_width
+        s3 = (Const.block_row - 1) * Const.block_height
+        s4 = Const.block_row * Const.block_height
+    else:
+        s1 = (Const.block_col - 1) * Const.compressed_block_width
+        s2 = Const.block_col * Const.compressed_block_width
+        s3 = (Const.block_row - 1) * Const.compressed_block_height
+        s4 = Const.block_row * Const.compressed_block_height
+
+    return s1, s2, s3, s4
+
+
+def get_image_rgb():
+    image = mpimg.imread(Const.image)
+    image = (2.0 * image / 1.0) - 1.0
+    return image
+
+
+def vector_neurons():
+    check_col_row()
     vector = []
-    size_1_1 = (Const.block_col - 1) * Const.block_width
-    size_1_2 = Const.block_col * Const.block_width
-    size_2_1 = (Const.block_row - 1) * Const.block_height
-    size_2_2 = Const.block_row * Const.block_height
+    size_1_1, size_1_2, size_2_1, size_2_2 = size_image('image')
+
     for q in range(size_2_1, size_2_2):
         for y in range(size_1_1, size_1_2):
             for k in range(3):
@@ -35,18 +53,11 @@ def vector_neurons():
 
 
 def vector_neurons_for_saved_image():
-    if Const.block_row == Const.block_max_row + 1 and Const.block_col != Const.block_max_col:
-        Const.block_col += 1
-        Const.block_row = 1
-    elif Const.block_row == Const.block_max_row + 1 and Const.block_col == Const.block_col:
-        Const.block_col = 1
-        Const.block_row = 1
-
+    check_col_row()
     vector = []
-    size_1_1 = (Const.block_col - 1) * Const.compressed_block_width
-    size_1_2 = Const.block_col * Const.compressed_block_width
-    size_2_1 = (Const.block_row - 1) * Const.compressed_block_height
-    size_2_2 = Const.block_row * Const.compressed_block_height
+
+    size_1_1, size_1_2, size_2_1, size_2_2 = size_image('compressed')
+
     for q in range(size_2_1, size_2_2):
         for y in range(size_1_1, size_1_2):
             for k in range(3):
@@ -79,25 +90,26 @@ def backward(x):
     Const.W2 = Calculations.normalize(Const.W2)
     Const.W1 = Calculations.normalize(Const.W1)
 
+    error = Calculations.error_calculation(delta_h2, delta_h2)
+
+    return error
+
 
 def original_image():
     size_1 = 256
     size_2 = 256
-    out_image = [[[0 for k in range(3)] for n in range(size_1)] for j in range(size_2)]
+    image = [[[0 for _ in range(3)] for _ in range(size_1)] for _ in range(size_2)]
 
     for x in range(0, size_2):
         for y in range(0, size_1):
             for k in range(3):
-                out_image[x][y][k] = array_image[x][y][k]
+                image[x][y][k] = array_image[x][y][k]
 
-    return np.array(out_image)
+    return np.array(image)
 
 
 def out_image(neurons):
-    size_1_1 = (Const.block_col - 1) * Const.block_width
-    size_1_2 = Const.block_col * Const.block_width
-    size_2_1 = (Const.block_row - 1) * Const.block_height
-    size_2_2 = Const.block_row * Const.block_height
+    size_1_1, size_1_2, size_2_1, size_2_2 = size_image('image')
     resize_out = -1
 
     for q in range(size_2_1, size_2_2):
@@ -108,11 +120,9 @@ def out_image(neurons):
 
 
 def middle_image(neurons):
-    size_1_1 = (Const.block_col - 1) * Const.compressed_block_width
-    size_1_2 = Const.block_col * Const.compressed_block_width
-    size_2_1 = (Const.block_row - 1) * Const.compressed_block_height
-    size_2_2 = Const.block_row * Const.compressed_block_height
+    size_1_1, size_1_2, size_2_1, size_2_2 = size_image('compressed')
     resize_middle = -1
+
     for q in range(size_2_1, size_2_2):
         for y in range(size_1_1, size_1_2):
             for k in range(3):
@@ -129,37 +139,43 @@ def show(array):
     plt.show()
 
 
+def out():
+    h3 = original_image()
+    show(h3)
+    show(Const.middle_image)
+    show(Const.out_image)
+
+    number = Const.second_layer + 2
+    number = number * (Const.first_layer + Const.number_blocks)
+    number = (Const.first_layer * Const.number_blocks) / number
+    print('Z = ', number)
+
+
 def first_neural_network():
-
-    if Const.get_number_blocks():
-        pass
-    else:
-        print("Error: original image is not divided into blocks size " + str(Const.block_height) + "x" + str(
-            Const.block_width) + ". Try blocks size: 1x1, 1x2, 2x1, 2x2, 4x4, 8x8, 8x4, 8x2 and other")
-        exit()
-
     Const.W1, Const.W2 = Calculations.matrix_w(Const.first_layer, Const.second_layer)
 
     current_error = Const.ERROR + 1
 
     while current_error > Const.ERROR:
+
         Const.epoch += 1
         current_error = 0
+        start_time = datetime.now()
 
-        for y in range(Const.number_blocks):
+        for y in range(Const.iteration):
             x = vector_neurons()
-            backward(x)
+            current_error += backward(x)
             Const.block_row += 1
 
-        for y in range(Const.number_blocks):
-            x = vector_neurons()
-            Const.h1 = forward_propagation(x, Const.W1)
-            Const.h2 = forward_propagation(Const.h1, Const.W2)
-            delta_h2 = Calculations.subtracting_vectors(Const.h2, x)
-            current_error += Calculations.error_calculation(delta_h2, delta_h2)
-            Const.block_row += 1
+        print('learning')
+        print(datetime.now() - start_time)
+
+        current_error = current_error / Const.number_blocks
 
         print('Epoch : ', Const.epoch, '   ', 'errors : ', current_error, '   ', 'max errors : ', Const.ERROR)
+
+    Const.block_col = 1
+    Const.block_row = 1
 
     for y in range(Const.number_blocks):
         x = vector_neurons()
@@ -173,27 +189,10 @@ def first_neural_network():
     WorkWithFile.save_weight(Const.W1, "W1")
     WorkWithFile.save_weight(Const.W2, "W2")
 
-
-    h3 = original_image()
-    show(h3)
-    show(Const.middle_image)
-    show(Const.out_image)
-
-    number = Const.second_layer + 2
-    number = number * (Const.first_layer + Const.number_blocks)
-    number = (Const.first_layer * Const.number_blocks) / number
-    print('Z = ', number)
-    print("Iterations: ", Const.epoch / Const.number_blocks)
+    out()
 
 
 def second_neural_network():
-    if Const.get_number_blocks():
-        pass
-    else:
-        print("Error: original image is not divided into blocks size " + str(Const.block_height) + "x" + str(
-            Const.block_width) + ". Try blocks size: 1x1, 1x2, 2x1, 2x2, 4x4, 8x8, 8x4, 8x2 and other")
-        exit()
-
     Const.W1 = WorkWithFile.read_weight("W1")
     Const.W2 = WorkWithFile.read_weight("W2")
 
@@ -208,26 +207,10 @@ def second_neural_network():
 
     WorkWithFile.save_middle_image()
 
-    h3 = original_image()
-    show(h3)
-    show(Const.middle_image)
-    show(Const.out_image)
-
-    number = Const.second_layer + 2
-    number = number * (Const.first_layer + Const.number_blocks)
-    number = (Const.first_layer * Const.number_blocks) / number
-    print('Z = ', number)
-    print("Iterations: ", Const.epoch / Const.number_blocks)
+    out()
 
 
 def third_neural_network():
-    if Const.get_number_blocks():
-        pass
-    else:
-        print("Error: original image is not divided into blocks size " + str(Const.block_height) + "x" + str(
-            Const.block_width) + ". Try blocks size: 1x1, 1x2, 2x1, 2x2, 4x4, 8x8, 8x4, 8x2 and other")
-        exit()
-
     Const.W2 = WorkWithFile.read_weight("W2")
     WorkWithFile.read_middle_image()
 
@@ -239,38 +222,40 @@ def third_neural_network():
         out_image(Const.h2)
         Const.block_row += 1
 
-    h3 = original_image()
-    show(h3)
-    show(Const.middle_image)
-    show(Const.out_image)
-
-    number = Const.second_layer + 2
-    number = number * (Const.first_layer + Const.number_blocks)
-    number = (Const.first_layer * Const.number_blocks) / number
-    print('Z = ', number)
+    out()
 
 
 def main():
     value = True
+    Calculations.initialization()
+
+    if Calculations.get_number_blocks():
+        pass
+    else:
+        print("Error: original image is not divided into blocks size " + str(Const.block_height) + "x" + str(
+            Const.block_width) + ". Try blocks size: 1x1, 1x2, 2x1, 2x2, 4x4, 8x8, 8x4, 8x2 and other")
+        exit()
 
     while value:
-        print("№1 Обычная нейронка")
-        print("№2 На обученных весах")
-        print("№3 Из сжатой в разжатую")
-        user_input = int(input("Выберите развитие 1-3: "))
 
-        if user_input == 1:
+        print(" 1) Ordinary neuron network; ")
+        print(" 2) On trained weights; ")
+        print(" 3) Compressed into a normal image.")
+        user_input = (input(" Select development (1-3) : "))
+
+        if user_input == '1':
             value = False
             first_neural_network()
-        elif user_input == 2:
+        elif user_input == '2':
             value = False
             second_neural_network()
-        elif user_input == 3:
+        elif user_input == '3':
             value = False
             third_neural_network()
         else:
-            pass
+            print('\n' + " Incorrect input, try one more. " + '\n')
 
 
 array_image = get_image_rgb()
+
 main()
