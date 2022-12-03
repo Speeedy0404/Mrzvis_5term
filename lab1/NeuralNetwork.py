@@ -90,23 +90,6 @@ def backward(x):
     Const.W2 = Calculations.normalize(Const.W2)
     Const.W1 = Calculations.normalize(Const.W1)
 
-    error = Calculations.error_calculation(delta_h2, delta_h2)
-
-    return error
-
-
-def original_image():
-    size_1 = 256
-    size_2 = 256
-    image = [[[0 for _ in range(3)] for _ in range(size_1)] for _ in range(size_2)]
-
-    for x in range(0, size_2):
-        for y in range(0, size_1):
-            for k in range(3):
-                image[x][y][k] = array_image[x][y][k]
-
-    return np.array(image)
-
 
 def out_image(neurons):
     size_1_1, size_1_2, size_2_1, size_2_2 = size_image('image')
@@ -139,9 +122,9 @@ def show(array):
     plt.show()
 
 
-def out():
-    h3 = original_image()
-    show(h3)
+def out(number=0):
+    if number == 0:
+        show(array_image)
     show(Const.middle_image)
     show(Const.out_image)
 
@@ -162,9 +145,17 @@ def first_neural_network():
         current_error = 0
         start_time = datetime.now()
 
-        for y in range(Const.iteration):
+        for y in range(Const.number_blocks):
             x = vector_neurons()
-            current_error += backward(x)
+            backward(x)
+            Const.block_row += 1
+
+        for y in range(Const.number_blocks):
+            x = vector_neurons()
+            Const.h1 = forward_propagation(x, Const.W1)
+            Const.h2 = forward_propagation(Const.h1, Const.W2)
+            delta_h2 = Calculations.subtracting_vectors(Const.h2, x)
+            current_error += Calculations.error_calculation(delta_h2, delta_h2)
             Const.block_row += 1
 
         print('learning')
@@ -173,9 +164,6 @@ def first_neural_network():
         current_error = current_error / Const.number_blocks
 
         print('Epoch : ', Const.epoch, '   ', 'errors : ', current_error, '   ', 'max errors : ', Const.ERROR)
-
-    Const.block_col = 1
-    Const.block_row = 1
 
     for y in range(Const.number_blocks):
         x = vector_neurons()
@@ -222,7 +210,7 @@ def third_neural_network():
         out_image(Const.h2)
         Const.block_row += 1
 
-    out()
+    out(3)
 
 
 def main():

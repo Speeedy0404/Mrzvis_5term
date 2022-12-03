@@ -15,11 +15,11 @@ def save_weight(weight, name):
         print("Do you want overwrite them")
         check = input(" Yes(Y) / No(N) : ")
 
-        if check == "Y" or "y":
-            with open(file_name, 'w') as file:
-                for a in range(len(weight)):
-                    for b in range(len(weight[0])):
-                        file.write(str(weight[a][b]) + "\n")
+        if check == "Y":
+            with open(file_path, 'w') as file:
+                for row in range(len(weight)):
+                    for col in range(len(weight[0])):
+                        file.write(str(weight[row][col]) + "\n")
             print("Overwrite has occurred successfully")
         else:
             pass
@@ -60,7 +60,7 @@ def read_weight(name):
         size_1 = Const.second_layer
         size_2 = Const.first_layer
 
-    matrix_weight = [[0 for _ in range(size_2)] for _ in range(size_1)]
+    matrix_weight = [[0.1 for _ in range(size_2)] for _ in range(size_1)]
 
     file_name = name + '_size_block' + str(Const.block_height) + 'x' + str(Const.block_width) + 'and' + str(
         Const.compressed_block_height) + 'x' + str(
