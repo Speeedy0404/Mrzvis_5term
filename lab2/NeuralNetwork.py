@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 import Const
@@ -61,7 +63,72 @@ def set_a_target_own():
                 Const.out_vectors.append(y)
 
 
-#  Calculate weight matrix W:
+def read_from_file(path, information, matrix=None):
+    line_count = sum(1 for _ in open(path))
+
+    if os.path.exists(path):
+        with open(path, 'r') as file:
+            for count in range(line_count):
+                vector = []
+                some_string = file.readline()
+                for letter in some_string:
+
+                    if letter == '-':
+                        vector.append(-1)
+                    elif letter == '#':
+                        vector.append(1)
+                    elif letter == "\n":
+                        pass
+                    else:
+                        print('Неправильный формат шифрования')
+                        exit()
+                number = len(vector)
+                vector = np.array(vector).reshape(number, 1)
+                if information == 'input':
+                    Const.input_vectors.append(vector)
+                elif information == 'output':
+                    Const.out_vectors.append(vector)
+                elif information == 'noisy':
+                    matrix.append(vector)
+    else:
+        print("Данные: " + path + " не хранятся")
+        exit()
+
+    if information == 'input':
+        length = len(Const.input_vectors[0])
+        for size in range(len(Const.input_vectors)):
+            if len(Const.input_vectors[size]) != length:
+                print('Ошибка: неодинаковая длина данных в', path)
+                exit()
+            else:
+                pass
+    elif information == 'output':
+        length = len(Const.out_vectors[0])
+        for size in range(len(Const.out_vectors)):
+            if len(Const.out_vectors[size]) != length:
+                print('Ошибка: неодинаковая длина данных в', path)
+                exit()
+            else:
+                pass
+    elif information == 'noisy':
+        return matrix
+
+
+def set_a_from_code():
+    Const.input_vectors = []
+    full_path = Const.path + Const.code[Const.number_of_code] + '_input.txt'
+    read_from_file(full_path, 'input')
+    pass
+
+
+def set_b_from_code():
+    Const.out_vectors = []
+    full_path = Const.path + Const.code[Const.number_of_code] + '_output.txt'
+    read_from_file(full_path, 'output')
+    pass
+
+
+# Calculate weight matrix W:
 
 def calculate_weight_matrix_w():
     input_set = np.concatenate(
@@ -71,6 +138,40 @@ def calculate_weight_matrix_w():
 
     target_set = np.concatenate(
         (Const.out_vectors[0].T, Const.out_vectors[1].T, Const.out_vectors[2].T, Const.out_vectors[3].T), axis=0)
+    print('targetset')
+    print(target_set)
+
+    print("\nWeight matrix:")
+    Const.weight = np.dot(input_set, target_set)
+    print(Const.weight)
+
+    print("\n------------------------------")
+
+
+def calculate_weight_matrix_w_for_code():
+    input_set = None
+    target_set = None
+    size_one = len(Const.input_vectors)
+    size_two = len(Const.out_vectors)
+
+    for vector in range(1, size_one):
+        if vector == 1:
+
+            input_set = np.concatenate((Const.input_vectors[0], Const.input_vectors[vector]), axis=1)
+        else:
+            input_set = np.concatenate((input_set, Const.input_vectors[vector]), axis=1)
+
+    print('inputset')
+    print(input_set)
+
+    for size in range(1, size_two):
+        if size == 1:
+
+            target_set = np.concatenate((Const.out_vectors[0], Const.out_vectors[size]), axis=1)
+        else:
+            target_set = np.concatenate((target_set, Const.out_vectors[size]), axis=1)
+    target_set = target_set.T
+
     print('targetset')
     print(target_set)
 
@@ -219,6 +320,8 @@ def testing_phase(input_vectors=None, out_vectors=None):
                     print(test_targets(out[element], Const.weight))
 
 
+# Test noisy
+
 def to_try():
     variable = True
     while variable:
@@ -257,10 +360,34 @@ def to_try():
             variable = False
 
 
+def try_noisy_code():
+    input_vectors = []
+    full_path = Const.path + 'noisy_' + Const.code[Const.number_of_code] + '_input.txt'
+    input_vectors = read_from_file(full_path, 'noisy', input_vectors)
+    print('noisy_inputset')
+    print(input_vectors)
+    testing_phase(input_vectors, None)
+
+    out_vectors = []
+    full_path = Const.path + 'noisy_' + Const.code[Const.number_of_code] + '_output.txt'
+    out_vectors = read_from_file(full_path, 'noisy', out_vectors)
+    print('noisy_targetset')
+    print(out_vectors)
+    testing_phase(None, out_vectors)
+
+
+def initialization():
+    Const.set_input_size = (len(Const.input_vectors[0]))
+    Const.set_out_size = (len(Const.out_vectors[0]))
+    if len(Const.input_vectors) != len(Const.out_vectors):
+        print('Ошибка: неодинаковое количество векторов входа и выхода')
+        exit()
+
+
 def main():
     check = True
     while check:
-        key = input("Взять стандартные set(1) или свои(2):\n")
+        key = input("Взять стандартные set(1) / свои(2) или взять зашифрованые символы(3):\n")
         if key == '1':
             check = False
             set_a_input_standard()
@@ -286,6 +413,29 @@ def main():
             calculate_weight_matrix_w()
             testing_phase(Const.input_vectors, Const.out_vectors)
             to_try()
+        elif key == '3':
+            check = False
+            check_three = True
+
+            while check_three:
+                check_three = False
+
+                print('Выберите входной set:\n'
+                      '1) Танк')
+                key_two = input()
+
+                if key_two == '1':
+                    Const.path = 'code/' + Const.code[0] + '/'
+                    Const.number_of_code = 0
+                else:
+                    print('Некорретный ввод, повторите')
+                    check_three = True
+            set_a_from_code()
+            set_b_from_code()
+            initialization()
+            calculate_weight_matrix_w_for_code()
+            testing_phase(Const.input_vectors, Const.out_vectors)
+            try_noisy_code()
         else:
             print('Некорретный ввод, повторите')
 
